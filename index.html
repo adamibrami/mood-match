@@ -1001,7 +1001,15 @@ function showResults(data, catsArr) {
       const card=document.createElement('div'); card.className='rcard';
       card.style.animationDelay=`${i*0.09}s`;
       const q=encodeURIComponent(item.title+(item.type==='youtube'?' youtube':item.type==='game'?' game':''));
-      card.onclick=()=>window.open(`https://www.google.com/search?q=${q}`,'_blank');
+      // Amazon affiliate link for books and games, Google search for others
+      const amazonTag = 'moodmatch-20'; // ← ضع هنا tag الخاص بك من Amazon Associates
+      let clickUrl;
+      if(item.type==='book'||item.type==='game'){
+        clickUrl=`https://www.amazon.com/s?k=${encodeURIComponent(item.title)}&tag=${amazonTag}`;
+      } else {
+        clickUrl=`https://www.google.com/search?q=${q}`;
+      }
+      card.onclick=()=>window.open(clickUrl,'_blank');
       card.innerHTML=`
         <div class="rthumb">
           <div class="rthumb-bg">${item.emoji||'🎬'}</div>
