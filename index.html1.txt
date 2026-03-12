@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مزاجك | Mood Match AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f;--surface:#0c1019;--card:#111827;--card2:#161e2e;--border:#1e2d45;
+  --accent:#5b8def;--accent2:#b06af5;--accent3:#f5a623;--green:#3dd68c;--red:#ff4757;
+  --text:#e6ecf8;--muted:#64748b;--muted2:#8898b3;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;overflow-x:hidden;}
+body.lang-ar{font-family:'Tajawal',sans-serif;direction:rtl;}
+body.lang-en,body.lang-es,body.lang-fr,body.lang-it{font-family:'Outfit',sans-serif;direction:ltr;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 50% at 15% 15%,rgba(91,141,239,0.07) 0%,transparent 65%),
+             radial-gradient(ellipse 50% 70% at 85% 85%,rgba(176,106,245,0.06) 0%,transparent 65%);}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:15px 36px;border-bottom:1px solid var(--border);background:rgba(7,9,15,0.85);backdrop-filter:blur(16px);}
+.logo{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--muted);display:block;margin-top:-3px;-webkit-text-fill-color:var(--muted);}
+.lang-switcher{display:flex;gap:5px;flex-wrap:wrap;}
+.lang-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);
+  padding:5px 12px;border-radius:20px;font-size:0.76rem;cursor:pointer;transition:all 0.2s;font-family:'Outfit',sans-serif;}
+.lang-btn:hover,.lang-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
+/* HERO */
+.hero{position:relative;z-index:1;text-align:center;padding:55px 20px 30px;}
+.hero-badge{display:inline-block;background:rgba(91,141,239,0.1);border:1px solid rgba(91,141,239,0.25);
+  color:var(--accent);padding:5px 18px;border-radius:20px;font-size:0.8rem;margin-bottom:16px;animation:fadeIn 0.5s ease;}
+.hero h1{font-size:clamp(1.8rem,5vw,3.4rem);font-weight:900;line-height:1.15;margin-bottom:14px;animation:slideUp 0.6s ease both;}
+.grad{background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero p{font-size:1rem;color:var(--muted);max-width:540px;margin:0 auto 28px;line-height:1.7;animation:slideUp 0.7s 0.1s ease both;}
+
+/* WIZARD CARD */
+.wizard{position:relative;z-index:1;max-width:820px;margin:0 auto 60px;padding:0 18px;}
+.wcard{background:var(--card);border:1px solid var(--border);border-radius:22px;overflow:hidden;
+  box-shadow:0 12px 60px rgba(0,0,0,0.55);animation:slideUp 0.8s 0.15s ease both;}
+
+/* STEP TABS */
+.step-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+.step-tabs::-webkit-scrollbar{display:none;}
+.step-tab{flex:1;min-width:80px;padding:14px 10px;text-align:center;font-size:0.78rem;font-weight:600;
+  color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.step-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.step-tab .tab-num{display:block;font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted2);margin-bottom:3px;}
+.step-tab.done .tab-num::after{content:' ✓';color:var(--green);}
+
+/* STEP PANELS */
+.step-panel{display:none;padding:24px;}
+.step-panel.active{display:block;animation:fadeIn 0.3s ease;}
+.panel-title{font-size:1rem;font-weight:700;margin-bottom:6px;}
+.panel-sub{font-size:0.82rem;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+
+/* CATEGORY SELECTOR (Step 1) */
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:4px;}
+.cat-card{background:var(--surface);border:2px solid var(--border);border-radius:14px;
+  padding:16px 12px;text-align:center;cursor:pointer;transition:all 0.2s;}
+.cat-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.cat-card.active{border-color:transparent;transform:translateY(-2px);}
+.cat-card.active.c-movie{background:linear-gradient(135deg,rgba(232,67,147,0.2),rgba(192,16,128,0.1));border-color:#e84393;}
+.cat-card.active.c-series{background:linear-gradient(135deg,rgba(245,166,35,0.2),rgba(217,104,0,0.1));border-color:var(--accent3);}
+.cat-card.active.c-youtube{background:linear-gradient(135deg,rgba(255,59,48,0.2),rgba(179,0,0,0.1));border-color:#ff4757;}
+.cat-card.active.c-book{background:linear-gradient(135deg,rgba(61,214,140,0.2),rgba(26,144,96,0.1));border-color:var(--green);}
+.cat-card.active.c-game{background:linear-gradient(135deg,rgba(91,141,239,0.2),rgba(48,96,192,0.1));border-color:var(--accent);}
+.cat-icon{font-size:2rem;margin-bottom:8px;}
+.cat-name{font-size:0.85rem;font-weight:700;}
+.cat-desc{font-size:0.7rem;color:var(--muted);margin-top:3px;line-height:1.3;}
+
+/* FILTERS SECTION (Step 2) */
+.filters-area{display:flex;flex-direction:column;gap:22px;}
+.filter-group{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.fg-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.fg-icon{font-size:1.1rem;}
+.fg-title{font-size:0.88rem;font-weight:700;}
+.fg-cat-badge{font-size:0.67rem;padding:2px 10px;border-radius:20px;font-weight:700;margin-right:auto;}
+body.lang-ar .fg-cat-badge{margin-right:0;margin-left:auto;}
+.fg-badge-movie{background:rgba(232,67,147,0.15);color:#e84393;}
+.fg-badge-series{background:rgba(245,166,35,0.15);color:var(--accent3);}
+.fg-badge-youtube{background:rgba(255,71,87,0.15);color:var(--red);}
+.fg-badge-book{background:rgba(61,214,140,0.15);color:var(--green);}
+.fg-badge-game{background:rgba(91,141,239,0.15);color:var(--accent);}
+
+/* CHIP GROUPS */
+.chips{display:flex;flex-wrap:wrap;gap:7px;}
+.chip{background:var(--surface);border:1px solid var(--border);color:var(--muted2);
+  padding:5px 14px;border-radius:20px;font-size:0.78rem;cursor:pointer;transition:all 0.18s;font-family:inherit;}
+.chip:hover{border-color:var(--accent2);color:var(--text);}
+.chip.active{background:var(--accent2);border-color:var(--accent2);color:#fff;}
+.chip.active.mood-chip{background:var(--accent3);border-color:var(--accent3);}
+
+/* RANGE SLIDER */
+.slider-row{display:flex;align-items:center;gap:12px;margin-top:6px;}
+.slider-label{font-size:0.78rem;color:var(--muted2);white-space:nowrap;min-width:40px;text-align:center;}
+input[type=range]{flex:1;appearance:none;height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;}
+
+/* MOOD DESCRIPTION (Step 3) */
+.mood-section{display:flex;flex-direction:column;gap:18px;}
+.mood-presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px;}
+.mood-preset{background:var(--surface);border:1px solid var(--border);color:var(--muted2);
+  padding:6px 14px;border-radius:20px;font-size:0.8rem;cursor:pointer;transition:all 0.18s;font-family:inherit;}
+.mood-preset:hover{border-color:var(--accent);color:var(--text);}
+.mood-preset.active{background:rgba(91,141,239,0.15);border-color:var(--accent);color:var(--accent);}
+
+.voice-indicator{display:none;align-items:center;gap:10px;background:rgba(176,106,245,0.1);
+  border:1px solid rgba(176,106,245,0.3);border-radius:10px;padding:9px 14px;
+  font-size:0.83rem;color:var(--accent2);}
+.voice-indicator.show{display:flex;}
+.vbars{display:flex;gap:3px;align-items:center;}
+.vbars span{width:3px;background:var(--accent2);border-radius:2px;animation:barA 0.8s ease-in-out infinite;}
+.vbars span:nth-child(1){height:8px;animation-delay:0s}.vbars span:nth-child(2){height:16px;animation-delay:0.15s}
+.vbars span:nth-child(3){height:10px;animation-delay:0.3s}.vbars span:nth-child(4){height:20px;animation-delay:0.1s}
+.vbars span:nth-child(5){height:12px;animation-delay:0.25s}
+@keyframes barA{0%,100%{transform:scaleY(0.5)}50%{transform:scaleY(1.3)}}
+
+textarea{width:100%;min-height:110px;background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;color:var(--text);padding:14px;font-size:0.97rem;resize:vertical;
+  font-family:inherit;line-height:1.75;outline:none;transition:border-color 0.2s;}
+textarea:focus{border-color:var(--accent);}
+textarea::placeholder{color:var(--muted);}
+.char-count{font-size:0.72rem;color:var(--muted);text-align:end;margin-top:5px;}
+
+/* NAVIGATION */
+.nav-row{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;
+  border-top:1px solid var(--border);background:rgba(7,9,15,0.4);}
+.nav-btn{padding:10px 24px;border-radius:12px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+.nav-prev{background:var(--surface);border:1px solid var(--border);color:var(--muted);}
+.nav-prev:hover{border-color:var(--accent);color:var(--accent);}
+.nav-next{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#fff;padding:10px 28px;}
+.nav-next:hover{opacity:0.88;transform:translateY(-1px);}
+.nav-next:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+.nav-submit{background:linear-gradient(135deg,var(--green),#1a9060);border:none;color:#fff;padding:10px 28px;}
+.nav-submit:hover{opacity:0.88;transform:translateY(-1px);}
+.voice-btn-sm{width:40px;height:40px;border-radius:50%;background:var(--surface);border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;flex-shrink:0;}
+.voice-btn-sm:hover{border-color:var(--accent2);color:var(--accent2);}
+.voice-btn-sm.recording{border-color:var(--accent2);color:var(--accent2);animation:pBtn 1s infinite;}
+@keyframes pBtn{0%,100%{box-shadow:0 0 0 0 rgba(176,106,245,0.4)}50%{box-shadow:0 0 0 8px rgba(176,106,245,0)}}
+
+/* SUMMARY BAR */
+.summary-bar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 24px;border-bottom:1px solid var(--border);
+  background:rgba(91,141,239,0.04);}
+.summary-tag{background:var(--surface);border:1px solid var(--border);color:var(--muted2);
+  padding:3px 10px;border-radius:20px;font-size:0.72rem;}
+
+/* LOADING */
+.loading{display:none;text-align:center;position:relative;z-index:1;padding:70px 20px;}
+.loading.show{display:block;}
+.orbit{width:56px;height:56px;position:relative;margin:0 auto 22px;}
+.orbit-ring{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;border-top-color:var(--accent);animation:spin 1s linear infinite;}
+.orbit-ring:nth-child(2){inset:8px;border-top-color:var(--accent2);animation-duration:1.4s;animation-direction:reverse;}
+.orbit-ring:nth-child(3){inset:16px;border-top-color:var(--accent3);animation-duration:0.8s;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading h3{font-size:1.05rem;margin-bottom:8px;}
+.loading p{color:var(--muted);font-size:0.87rem;max-width:340px;margin:0 auto 22px;line-height:1.6;}
+.lsteps{display:flex;flex-direction:column;gap:8px;max-width:310px;margin:0 auto;}
+.lstep{display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--muted);
+  background:var(--card);border:1px solid var(--border);border-radius:9px;padding:9px 13px;
+  opacity:0;animation:fadeIn 0.4s ease forwards;}
+.lstep.done{color:var(--green);}
+
+/* RESULTS */
+.results-section{display:none;position:relative;z-index:1;max-width:820px;margin:0 auto 80px;padding:0 18px;}
+.results-section.show{display:block;animation:fadeIn 0.5s ease;}
+.new-search-btn{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);
+  color:var(--text);padding:9px 20px;border-radius:11px;font-size:0.88rem;font-weight:600;
+  cursor:pointer;font-family:inherit;margin-bottom:22px;transition:all 0.2s;}
+.new-search-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ai-box{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:20px;margin-bottom:26px;border-left:3px solid var(--accent);}
+body.lang-ar .ai-box{border-left:none;border-right:3px solid var(--accent);}
+.ai-lbl{font-size:0.7rem;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:9px;display:flex;align-items:center;gap:5px;}
+.ai-box p{font-size:0.97rem;line-height:1.85;}
+
+.rgroup{margin-bottom:28px;}
+.rgroup-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:9px;border-bottom:1px solid var(--border);}
+.rgroup-title{font-size:0.95rem;font-weight:700;}
+.rgroup-count{font-size:0.72rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:2px 9px;border-radius:20px;}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:13px;}
+.rcard{background:var(--card);border:1px solid var(--border);border-radius:15px;overflow:hidden;cursor:pointer;
+  display:flex;flex-direction:column;transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;
+  animation:slideUp 0.45s ease both;}
+.rcard:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 12px 36px rgba(91,141,239,0.13);}
+.rthumb{width:100%;aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:2.8rem;position:relative;overflow:hidden;}
+.rthumb-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:7rem;opacity:0.07;}
+.rthumb-icon{position:relative;z-index:1;}
+.rbody{padding:13px;flex:1;display:flex;flex-direction:column;}
+.rbadge{display:inline-block;font-size:0.63rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:2px 8px;border-radius:6px;margin-bottom:7px;}
+.rb-movie{background:rgba(232,67,147,0.12);color:#e84393;}
+.rb-series{background:rgba(245,166,35,0.12);color:var(--accent3);}
+.rb-youtube{background:rgba(255,71,87,0.12);color:var(--red);}
+.rb-book{background:rgba(61,214,140,0.12);color:var(--green);}
+.rb-game{background:rgba(91,141,239,0.12);color:var(--accent);}
+.rtitle{font-size:0.93rem;font-weight:700;margin-bottom:5px;line-height:1.3;}
+.rmeta{font-size:0.74rem;color:var(--muted);line-height:1.6;}
+.rplatform{font-size:0.71rem;color:var(--accent3);margin-top:3px;font-weight:600;}
+.rmatch{display:block;margin-top:9px;background:rgba(61,214,140,0.07);color:var(--green);
+  border:1px solid rgba(61,214,140,0.18);padding:5px 9px;border-radius:7px;font-size:0.71rem;line-height:1.5;}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+  header{padding:12px 15px;}.hero{padding:42px 14px 24px;}
+  .cat-grid{grid-template-columns:repeat(3,1fr);}.rgrid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+  .lang-btn{padding:4px 9px;font-size:0.7rem;}.step-tab{padding:11px 7px;font-size:0.72rem;}
+}
+</style>
+</head>
+<body class="lang-ar">
+
+<header>
+  <div class="logo">مزاجك<span class="logo-sub">MOOD MATCH AI</span></div>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('ar')">العربية</button>
+    <button class="lang-btn" onclick="setLang('en')">English</button>
+    <button class="lang-btn" onclick="setLang('es')">Español</button>
+    <button class="lang-btn" onclick="setLang('fr')">Français</button>
+    <button class="lang-btn" onclick="setLang('it')">Italiano</button>
+  </div>
+</header>
+
+<section class="hero" id="heroSection">
+  <div class="hero-badge" id="heroBadge">✨ مدعوم بالذكاء الاصطناعي</div>
+  <h1 id="heroTitle">صف <span class="grad">مزاجك</span><br>واكتشف ما يناسبك</h1>
+  <p id="heroSub">اختر تصنيفاتك، حدد تفضيلاتك بدقة، وصف مزاجك — والذكاء الاصطناعي سيجد لك المحتوى المثالي.</p>
+</section>
+
+<div class="wizard" id="wizardEl">
+  <div class="wcard">
+    <!-- STEP TABS -->
+    <div class="step-tabs" id="stepTabs">
+      <div class="step-tab active" data-step="0">
+        <span class="tab-num" id="tn0">01</span>
+        <span id="tl0">التصنيفات</span>
+      </div>
+      <div class="step-tab" data-step="1">
+        <span class="tab-num" id="tn1">02</span>
+        <span id="tl1">الفلاتر</span>
+      </div>
+      <div class="step-tab" data-step="2">
+        <span class="tab-num" id="tn2">03</span>
+        <span id="tl2">المزاج</span>
+      </div>
+    </div>
+
+    <!-- SUMMARY BAR -->
+    <div class="summary-bar" id="summaryBar" style="display:none"></div>
+
+    <!-- STEP 0: CATEGORIES -->
+    <div class="step-panel active" id="panel0">
+      <div class="panel-title" id="pt0">ما الذي تبحث عنه؟</div>
+      <div class="panel-sub" id="ps0">اختر تصنيفاً واحداً أو أكثر للبحث فيه</div>
+      <div class="cat-grid">
+        <div class="cat-card c-movie" data-cat="movie" onclick="toggleCatCard(this)">
+          <div class="cat-icon">🎬</div>
+          <div class="cat-name" data-ck="cat_movie">أفلام</div>
+          <div class="cat-desc" data-ck="catd_movie">أفلام سينمائية</div>
+        </div>
+        <div class="cat-card c-series" data-cat="series" onclick="toggleCatCard(this)">
+          <div class="cat-icon">📺</div>
+          <div class="cat-name" data-ck="cat_series">مسلسلات</div>
+          <div class="cat-desc" data-ck="catd_series">مسلسلات وبرامج</div>
+        </div>
+        <div class="cat-card c-youtube" data-cat="youtube" onclick="toggleCatCard(this)">
+          <div class="cat-icon">▶️</div>
+          <div class="cat-name" data-ck="cat_youtube">يوتيوب</div>
+          <div class="cat-desc" data-ck="catd_youtube">فيديوهات وقنوات</div>
+        </div>
+        <div class="cat-card c-book" data-cat="book" onclick="toggleCatCard(this)">
+          <div class="cat-icon">📚</div>
+          <div class="cat-name" data-ck="cat_book">كتب</div>
+          <div class="cat-desc" data-ck="catd_book">روايات ومراجع</div>
+        </div>
+        <div class="cat-card c-game" data-cat="game" onclick="toggleCatCard(this)">
+          <div class="cat-icon">🎮</div>
+          <div class="cat-name" data-ck="cat_game">ألعاب</div>
+          <div class="cat-desc" data-ck="catd_game">PS / Xbox / Steam</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 1: FILTERS (rendered dynamically) -->
+    <div class="step-panel" id="panel1">
+      <div class="panel-title" id="pt1">فلاتر التفضيلات</div>
+      <div class="panel-sub" id="ps1">خصّص خياراتك لكل تصنيف اخترته</div>
+      <div class="filters-area" id="filtersArea"></div>
+    </div>
+
+    <!-- STEP 2: MOOD -->
+    <div class="step-panel" id="panel2">
+      <div class="panel-title" id="pt2">صف مزاجك</div>
+      <div class="panel-sub" id="ps2">كلما كان الوصف أدق، كانت التوصيات أفضل</div>
+      <div class="mood-section">
+        <div>
+          <div style="font-size:0.78rem;color:var(--muted2);margin-bottom:9px;font-weight:600;" id="moodPresetsLabel">اختر وصفاً سريعاً أو اكتب وصفك الخاص:</div>
+          <div class="mood-presets" id="moodPresets"></div>
+        </div>
+        <div class="voice-indicator" id="voiceIndicator">
+          <div class="vbars"><span></span><span></span><span></span><span></span><span></span></div>
+          <span id="voiceListeningText">جارٍ الاستماع...</span>
+        </div>
+        <div>
+          <textarea id="userInput" maxlength="1200" placeholder="مثال: أريد شيئاً يجعلني أفكر بعمق عن الحياة والمصير، لا أريد أكشن مباشر..."></textarea>
+          <div class="char-count"><span id="charCount">0</span>/1200</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAV -->
+    <div class="nav-row" id="navRow">
+      <button class="nav-btn nav-prev" id="prevBtn" onclick="prevStep()" style="visibility:hidden" id="prevBtn">
+        <span id="prevText">السابق</span>
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="voice-btn-sm" id="voiceBtn" onclick="toggleVoice()" style="display:none">🎙️</button>
+        <button class="nav-btn nav-next" id="nextBtn" onclick="nextStep()">
+          <span id="nextText">التالي ←</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading" id="loadingEl">
+  <div class="orbit"><div class="orbit-ring"></div><div class="orbit-ring"></div><div class="orbit-ring"></div></div>
+  <h3 id="loadingTitle">يحلل الذكاء الاصطناعي طلبك...</h3>
+  <p id="loadingText">يطابق تفضيلاتك مع أفضل المحتويات المتاحة</p>
+  <div class="lsteps" id="lsteps"></div>
+</div>
+
+<!-- RESULTS -->
+<div class="results-section" id="resultsSection">
+  <button class="new-search-btn" onclick="resetAll()">
+    <span id="backArrow">→</span>&nbsp;<span id="newSearchText">بحث جديد</span>
+  </button>
+  <div class="ai-box">
+    <div class="ai-lbl">🤖 <span id="aiLblText">تحليل الذكاء الاصطناعي</span></div>
+    <p id="aiResponse"></p>
+  </div>
+  <div id="groupsContainer"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// I18N
+// ═══════════════════════════════════════════════════
+const S = {
+  ar:{
+    badge:"✨ مدعوم بالذكاء الاصطناعي",
+    title:'صف <span class="grad">مزاجك</span><br>واكتشف ما يناسبك',
+    hero_sub:"اختر تصنيفاتك، حدد تفضيلاتك بدقة، وصف مزاجك — والذكاء الاصطناعي سيجد لك المحتوى المثالي.",
+    tab0:"التصنيفات",tab1:"الفلاتر",tab2:"المزاج",
+    pt0:"ما الذي تبحث عنه؟",ps0:"اختر تصنيفاً واحداً أو أكثر للبحث فيه",
+    pt1:"فلاتر التفضيلات",ps1:"خصّص خياراتك لكل تصنيف اخترته",
+    pt2:"صف مزاجك",ps2:"كلما كان الوصف أدق، كانت التوصيات أفضل",
+    cat_movie:"أفلام",cat_series:"مسلسلات",cat_youtube:"يوتيوب",cat_book:"كتب",cat_game:"ألعاب",
+    catd_movie:"أفلام سينمائية",catd_series:"مسلسلات وبرامج",catd_youtube:"فيديوهات وقنوات",catd_book:"روايات ومراجع",catd_game:"PS / Xbox / Steam",
+    prev:"السابق",next:"التالي →",
+    search:"✨ ابحث الآن",
+    voice_on:"جارٍ الاستماع...",
+    err_cat:"اختر تصنيفاً واحداً على الأقل",
+    err_mood:"اكتب وصفاً للمزاج أو اختر وصفاً سريعاً",
+    loading_title:"يحلل الذكاء الاصطناعي طلبك...",
+    loading_text:"يطابق تفضيلاتك مع أفضل المحتويات المتاحة",
+    lsteps:["🧠 تحليل التفضيلات والفلاتر","🎭 تحليل المزاج والمشاعر","🔍 البحث الدقيق في كل تصنيف","🎯 مطابقة النتائج مع وصفك","✨ ترتيب أفضل التوصيات"],
+    ai_lbl:"تحليل الذكاء الاصطناعي",
+    new_search:"بحث جديد",back:"→",
+    mood_presets_lbl:"اختر وصفاً سريعاً أو اكتب وصفك الخاص:",
+    mood_presets:["😌 أريد الاسترخاء","🤔 أريد التفكير والتأمل","😂 أريد الضحك","😢 أريد الإحساس بالعمق","💪 أريد الإثارة والأكشن","🥰 أريد رومانسية","😱 أريد الخوف والإثارة","🌍 أريد استكشاف ثقافات","👨‍👩‍👧 أريد محتوى عائلي","🧠 أريد تعلم شيء جديد"],
+    placeholder:"مثال: أريد شيئاً يجعلني أفكر بعمق عن الحياة والمصير، لا أريد أكشن مباشر...",
+    type_movie:"فيلم",type_series:"مسلسل",type_youtube:"يوتيوب",type_book:"كتاب",type_game:"لعبة",
+    grp_movie:"🎬 أفلام",grp_series:"📺 مسلسلات",grp_youtube:"▶️ يوتيوب",grp_book:"📚 كتب",grp_game:"🎮 ألعاب",
+    // FILTER LABELS
+    f_genre:"النوع / الجنس",f_duration:"المدة الزمنية",f_era:"الحقبة الزمنية",f_lang:"لغة المحتوى",
+    f_rating:"التقييم العمري",f_mood_tone:"النبرة العاطفية",f_platform:"المنصة",f_format:"النوع",
+    f_length:"طول الكتاب",f_style:"أسلوب الكتابة",
+    // Movie genres
+    mg:["أكشن","مغامرة","كوميديا","دراما","رعب","خيال علمي","رومانسي","تشويق","جريمة","وثائقي","خيال","أنيميشن","تاريخي","حربي","نفسي"],
+    // Series genres
+    sg:["دراما","جريمة","كوميديا","خيال علمي","رعب","رومانسي","إثارة","وثائقي","أنيميشن","تاريخي","سياسي","طبي","قانوني","مغامرة"],
+    // YouTube categories
+    yc:["علم وتكنولوجيا","تاريخ وثقافة","كوميديا","وثائقي","تعليمي","ألعاب","رياضة","طبخ","سفر","فلسفة","أخبار","موسيقى","فن","لياقة"],
+    // Book genres
+    bg:["رواية خيالية","خيال علمي","رعب","رومانسي","جريمة وإثارة","فلسفة","تاريخ","تطوير ذات","علم","سيرة ذاتية","فنتازيا","كلاسيكي","أدب عربي"],
+    // Game genres
+    gg:["RPG","أكشن","مغامرة","رياضة","إستراتيجية","رعب","تصويب FPS","سباقات","محاكاة","MMORPG","لغز","منصات","قتال","رعب بقاء"],
+    // Duration movie
+    dm:["أقل من ساعة ونصف","١.٥ - ٢ ساعة","٢ - ٢.٥ ساعة","أكثر من ٢.٥ ساعة","أي مدة"],
+    // Duration series (eps)
+    ds:["١٠ حلقات أو أقل","٢٠-٣٠ حلقة","٣٠-٦٠ حلقة","أكثر من ٦٠ حلقة","أي عدد"],
+    // Duration YouTube
+    dy:["أقل من ١٠ دقائق","١٠-٣٠ دقيقة","٣٠-٦٠ دقيقة","أكثر من ساعة","أي مدة"],
+    // Era
+    era:["قبل ٢٠٠٠","٢٠٠٠-٢٠١٠","٢٠١٠-٢٠٢٠","٢٠٢٠ وما بعد","لا يهمني"],
+    // Lang
+    lang:["عربي","إنجليزي","كوري","ياباني","إسباني","فرنسي","لا يهمني"],
+    // Rating
+    rat:["للجميع","PG-13 / ١٣+","١٦+","١٨+","لا يهمني"],
+    // Mood tone
+    tone:["مبهج ومرح","مؤثر وعاطفي","مثير وسريع","هادئ وتأملي","مظلم وجاد","مضحك وخفيف","ملهم ومحفز"],
+    // Platform
+    plat_stream:["Netflix","Disney+","Amazon Prime","Apple TV+","HBO Max","أي منصة"],
+    plat_game:["PlayStation 5","PlayStation 4","Xbox Series X/S","Xbox One","PC / Steam","Nintendo Switch","أي منصة"],
+    // Book length
+    blen:["قصير (أقل من ٢٠٠ صفحة)","متوسط (٢٠٠-٤٠٠)","طويل (٤٠٠-٦٠٠)","ضخم (٦٠٠+)","لا يهمني"],
+    // Book style
+    bstyle:["سلس وسريع القراءة","أدبي وشعري","تحليلي وعلمي","حواري وقصصي","لا يهمني"],
+    // Game platform type
+    gtype:["ألعاب فردية","ألعاب جماعية أونلاين","ألعاب تعاونية","كلا النوعين"],
+    err_voice:"المتصفح لا يدعم التعرف على الصوت",
+  },
+  en:{
+    badge:"✨ Powered by AI",
+    title:'Describe your <span class="grad">mood</span><br>and discover what fits',
+    hero_sub:"Choose categories, set your preferences precisely, describe your mood — AI will find the perfect content for you.",
+    tab0:"Categories",tab1:"Filters",tab2:"Mood",
+    pt0:"What are you looking for?",ps0:"Choose one or more categories to search in",
+    pt1:"Preference Filters",ps1:"Customize your options for each selected category",
+    pt2:"Describe Your Mood",ps2:"The more precise your description, the better the recommendations",
+    cat_movie:"Movies",cat_series:"Series",cat_youtube:"YouTube",cat_book:"Books",cat_game:"Games",
+    catd_movie:"Cinema films",catd_series:"TV shows & series",catd_youtube:"Videos & channels",catd_book:"Novels & references",catd_game:"PS / Xbox / Steam",
+    prev:"Previous",next:"Next →",search:"✨ Search Now",
+    voice_on:"Listening...",err_cat:"Select at least one category",err_mood:"Write a mood description or choose a quick option",
+    loading_title:"AI is analyzing your request...",loading_text:"Matching your preferences with the best available content",
+    lsteps:["🧠 Analyzing filters & preferences","🎭 Analyzing mood & feelings","🔍 Deep search in each category","🎯 Matching results to your description","✨ Ranking top recommendations"],
+    ai_lbl:"AI Analysis",new_search:"New Search",back:"←",
+    mood_presets_lbl:"Choose a quick mood or write your own:",
+    mood_presets:["😌 I want to relax","🤔 I want to think & reflect","😂 I want to laugh","😢 I want something emotional","💪 I want action & thrills","🥰 I want romance","😱 I want horror & suspense","🌍 I want to explore cultures","👨‍👩‍👧 Family-friendly content","🧠 I want to learn something"],
+    placeholder:"Example: I want something that makes me think deeply about life and fate, no straight-up action...",
+    type_movie:"Movie",type_series:"Series",type_youtube:"YouTube",type_book:"Book",type_game:"Game",
+    grp_movie:"🎬 Movies",grp_series:"📺 Series",grp_youtube:"▶️ YouTube",grp_book:"📚 Books",grp_game:"🎮 Games",
+    f_genre:"Genre",f_duration:"Duration",f_era:"Era",f_lang:"Content Language",f_rating:"Age Rating",f_mood_tone:"Emotional Tone",f_platform:"Platform",f_format:"Format",f_length:"Book Length",f_style:"Writing Style",
+    mg:["Action","Adventure","Comedy","Drama","Horror","Sci-Fi","Romance","Thriller","Crime","Documentary","Fantasy","Animation","Historical","War","Psychological"],
+    sg:["Drama","Crime","Comedy","Sci-Fi","Horror","Romance","Thriller","Documentary","Animation","Historical","Political","Medical","Legal","Adventure"],
+    yc:["Science & Tech","History & Culture","Comedy","Documentary","Educational","Gaming","Sports","Cooking","Travel","Philosophy","News","Music","Art","Fitness"],
+    bg:["Fiction","Sci-Fi","Horror","Romance","Crime & Thriller","Philosophy","History","Self-Help","Science","Biography","Fantasy","Classic","Literary Fiction"],
+    gg:["RPG","Action","Adventure","Sports","Strategy","Horror","FPS Shooter","Racing","Simulation","MMORPG","Puzzle","Platformer","Fighting","Survival Horror"],
+    dm:["Under 1.5 hrs","1.5–2 hrs","2–2.5 hrs","Over 2.5 hrs","Any length"],
+    ds:["10 eps or fewer","20–30 eps","30–60 eps","60+ eps","Any number"],
+    dy:["Under 10 min","10–30 min","30–60 min","Over 1 hour","Any length"],
+    era:["Before 2000","2000–2010","2010–2020","2020 & newer","Doesn't matter"],
+    lang:["Arabic","English","Korean","Japanese","Spanish","French","Doesn't matter"],
+    rat:["All ages","PG-13 / 13+","16+","18+","Doesn't matter"],
+    tone:["Cheerful & fun","Emotional & touching","Thrilling & fast-paced","Calm & reflective","Dark & serious","Funny & lighthearted","Inspiring & motivating"],
+    plat_stream:["Netflix","Disney+","Amazon Prime","Apple TV+","HBO Max","Any platform"],
+    plat_game:["PlayStation 5","PlayStation 4","Xbox Series X/S","Xbox One","PC / Steam","Nintendo Switch","Any platform"],
+    blen:["Short (under 200 pages)","Medium (200–400)","Long (400–600)","Epic (600+)","Doesn't matter"],
+    bstyle:["Easy & fast read","Literary & poetic","Analytical & scientific","Dialogue-driven","Doesn't matter"],
+    gtype:["Single player","Online multiplayer","Co-op","Both"],
+    err_voice:"Your browser doesn't support speech recognition",
+  },
+  es:{
+    badge:"✨ Impulsado por IA",title:'Describe tu <span class="grad">estado de ánimo</span><br>y descubre lo que te va',
+    hero_sub:"Elige categorías, establece tus preferencias con precisión, describe tu estado de ánimo — la IA encontrará el contenido perfecto para ti.",
+    tab0:"Categorías",tab1:"Filtros",tab2:"Estado de ánimo",
+    pt0:"¿Qué estás buscando?",ps0:"Elige una o más categorías para buscar",
+    pt1:"Filtros de Preferencias",ps1:"Personaliza tus opciones para cada categoría seleccionada",
+    pt2:"Describe Tu Estado de Ánimo",ps2:"Cuanto más precisa sea tu descripción, mejores serán las recomendaciones",
+    cat_movie:"Películas",cat_series:"Series",cat_youtube:"YouTube",cat_book:"Libros",cat_game:"Juegos",
+    catd_movie:"Películas de cine",catd_series:"Series y programas",catd_youtube:"Vídeos y canales",catd_book:"Novelas y referencias",catd_game:"PS / Xbox / Steam",
+    prev:"Anterior",next:"Siguiente →",search:"✨ Buscar Ahora",
+    voice_on:"Escuchando...",err_cat:"Selecciona al menos una categoría",err_mood:"Escribe una descripción del estado de ánimo",
+    loading_title:"La IA analiza tu solicitud...",loading_text:"Coincidiendo tus preferencias con el mejor contenido disponible",
+    lsteps:["🧠 Analizando filtros y preferencias","🎭 Analizando estado de ánimo","🔍 Búsqueda profunda en cada categoría","🎯 Coincidiendo resultados","✨ Clasificando las mejores recomendaciones"],
+    ai_lbl:"Análisis IA",new_search:"Nueva Búsqueda",back:"←",
+    mood_presets_lbl:"Elige un estado de ánimo rápido o escribe el tuyo:",
+    mood_presets:["😌 Quiero relajarme","🤔 Quiero reflexionar","😂 Quiero reír","😢 Quiero algo emotivo","💪 Quiero acción","🥰 Quiero romance","😱 Quiero terror","🌍 Explorar culturas","👨‍👩‍👧 Contenido familiar","🧠 Aprender algo"],
+    placeholder:"Ejemplo: Quiero algo que me haga pensar profundamente sobre la vida...",
+    type_movie:"Película",type_series:"Serie",type_youtube:"YouTube",type_book:"Libro",type_game:"Juego",
+    grp_movie:"🎬 Películas",grp_series:"📺 Series",grp_youtube:"▶️ YouTube",grp_book:"📚 Libros",grp_game:"🎮 Juegos",
+    f_genre:"Género",f_duration:"Duración",f_era:"Época",f_lang:"Idioma",f_rating:"Clasificación",f_mood_tone:"Tono Emocional",f_platform:"Plataforma",f_format:"Formato",f_length:"Longitud del libro",f_style:"Estilo de escritura",
+    mg:["Acción","Aventura","Comedia","Drama","Terror","Ciencia Ficción","Romance","Thriller","Crimen","Documental","Fantasía","Animación","Histórico","Guerra","Psicológico"],
+    sg:["Drama","Crimen","Comedia","Ciencia Ficción","Terror","Romance","Thriller","Documental","Animación","Histórico","Político","Médico","Legal","Aventura"],
+    yc:["Ciencia y Tecnología","Historia y Cultura","Comedia","Documental","Educativo","Gaming","Deportes","Cocina","Viajes","Filosofía","Noticias","Música","Arte","Fitness"],
+    bg:["Ficción","Ciencia Ficción","Terror","Romance","Crimen","Filosofía","Historia","Autoayuda","Ciencia","Biografía","Fantasía","Clásico","Ficción Literaria"],
+    gg:["RPG","Acción","Aventura","Deportes","Estrategia","Terror","FPS","Carreras","Simulación","MMORPG","Puzzle","Plataformas","Lucha","Terror Supervivencia"],
+    dm:["Menos de 1.5h","1.5–2h","2–2.5h","Más de 2.5h","Cualquier duración"],
+    ds:["10 eps o menos","20–30 eps","30–60 eps","60+ eps","Cualquier número"],
+    dy:["Menos de 10 min","10–30 min","30–60 min","Más de 1 hora","Cualquier duración"],
+    era:["Antes del 2000","2000–2010","2010–2020","2020 en adelante","No importa"],
+    lang:["Árabe","Inglés","Coreano","Japonés","Español","Francés","No importa"],
+    rat:["Todos","PG-13","16+","18+","No importa"],
+    tone:["Alegre y divertido","Emotivo y conmovedor","Emocionante y rápido","Tranquilo y reflexivo","Oscuro y serio","Divertido y ligero","Inspirador y motivador"],
+    plat_stream:["Netflix","Disney+","Amazon Prime","Apple TV+","HBO Max","Cualquier plataforma"],
+    plat_game:["PlayStation 5","PlayStation 4","Xbox Series X/S","Xbox One","PC / Steam","Nintendo Switch","Cualquier plataforma"],
+    blen:["Corto (<200 págs)","Medio (200–400)","Largo (400–600)","Épico (600+)","No importa"],
+    bstyle:["Fácil y rápido","Literario y poético","Analítico","Dialogado","No importa"],
+    gtype:["Un jugador","Multijugador online","Cooperativo","Ambos"],
+    err_voice:"Tu navegador no soporta el reconocimiento de voz",
+  },
+  fr:{
+    badge:"✨ Alimenté par l'IA",title:'Décrivez votre <span class="grad">humeur</span><br>et découvrez ce qui vous correspond',
+    hero_sub:"Choisissez vos catégories, définissez vos préférences avec précision, décrivez votre humeur — l'IA trouvera le contenu parfait pour vous.",
+    tab0:"Catégories",tab1:"Filtres",tab2:"Humeur",
+    pt0:"Que cherchez-vous ?",ps0:"Choisissez une ou plusieurs catégories à rechercher",
+    pt1:"Filtres de Préférences",ps1:"Personnalisez vos options pour chaque catégorie sélectionnée",
+    pt2:"Décrivez Votre Humeur",ps2:"Plus votre description est précise, meilleures seront les recommandations",
+    cat_movie:"Films",cat_series:"Séries",cat_youtube:"YouTube",cat_book:"Livres",cat_game:"Jeux",
+    catd_movie:"Films de cinéma",catd_series:"Séries et émissions",catd_youtube:"Vidéos et chaînes",catd_book:"Romans et références",catd_game:"PS / Xbox / Steam",
+    prev:"Précédent",next:"Suivant →",search:"✨ Chercher Maintenant",
+    voice_on:"À l'écoute...",err_cat:"Sélectionnez au moins une catégorie",err_mood:"Écrivez une description de votre humeur",
+    loading_title:"L'IA analyse votre demande...",loading_text:"Correspondance de vos préférences avec le meilleur contenu disponible",
+    lsteps:["🧠 Analyse des filtres et préférences","🎭 Analyse de l'humeur","🔍 Recherche approfondie","🎯 Correspondance des résultats","✨ Classement des meilleures recommandations"],
+    ai_lbl:"Analyse IA",new_search:"Nouvelle Recherche",back:"←",
+    mood_presets_lbl:"Choisissez une humeur rapide ou écrivez la vôtre :",
+    mood_presets:["😌 Je veux me détendre","🤔 Je veux réfléchir","😂 Je veux rire","😢 Quelque chose d'émouvant","💪 Action et frissons","🥰 Romance","😱 Horreur et suspense","🌍 Explorer des cultures","👨‍👩‍👧 Contenu familial","🧠 Apprendre quelque chose"],
+    placeholder:"Exemple: Je veux quelque chose qui me fasse réfléchir profondément sur la vie et le destin...",
+    type_movie:"Film",type_series:"Série",type_youtube:"YouTube",type_book:"Livre",type_game:"Jeu",
+    grp_movie:"🎬 Films",grp_series:"📺 Séries",grp_youtube:"▶️ YouTube",grp_book:"📚 Livres",grp_game:"🎮 Jeux",
+    f_genre:"Genre",f_duration:"Durée",f_era:"Époque",f_lang:"Langue",f_rating:"Classification",f_mood_tone:"Ton Émotionnel",f_platform:"Plateforme",f_format:"Format",f_length:"Longueur du livre",f_style:"Style d'écriture",
+    mg:["Action","Aventure","Comédie","Drame","Horreur","Sci-Fi","Romance","Thriller","Crime","Documentaire","Fantaisie","Animation","Historique","Guerre","Psychologique"],
+    sg:["Drame","Crime","Comédie","Sci-Fi","Horreur","Romance","Thriller","Documentaire","Animation","Historique","Politique","Médical","Juridique","Aventure"],
+    yc:["Science & Tech","Histoire & Culture","Comédie","Documentaire","Éducatif","Gaming","Sport","Cuisine","Voyage","Philosophie","Actualités","Musique","Art","Fitness"],
+    bg:["Fiction","Sci-Fi","Horreur","Romance","Crime & Thriller","Philosophie","Histoire","Développement personnel","Science","Biographie","Fantaisie","Classique","Littérature"],
+    gg:["RPG","Action","Aventure","Sport","Stratégie","Horreur","FPS","Course","Simulation","MMORPG","Puzzle","Plates-formes","Combat","Survie-Horreur"],
+    dm:["Moins de 1h30","1h30–2h","2h–2h30","Plus de 2h30","N'importe"],
+    ds:["10 éps ou moins","20–30 éps","30–60 éps","60+ éps","N'importe"],
+    dy:["Moins de 10 min","10–30 min","30–60 min","Plus d'1 heure","N'importe"],
+    era:["Avant 2000","2000–2010","2010–2020","2020 et après","Peu importe"],
+    lang:["Arabe","Anglais","Coréen","Japonais","Espagnol","Français","Peu importe"],
+    rat:["Tout public","PG-13","16+","18+","Peu importe"],
+    tone:["Joyeux et amusant","Émouvant et touchant","Palpitant et rapide","Calme et réfléchi","Sombre et sérieux","Drôle et léger","Inspirant et motivant"],
+    plat_stream:["Netflix","Disney+","Amazon Prime","Apple TV+","HBO Max","N'importe"],
+    plat_game:["PlayStation 5","PlayStation 4","Xbox Series X/S","Xbox One","PC / Steam","Nintendo Switch","N'importe"],
+    blen:["Court (<200 p.)","Moyen (200–400)","Long (400–600)","Épique (600+)","Peu importe"],
+    bstyle:["Facile et rapide","Littéraire et poétique","Analytique","Dialogué","Peu importe"],
+    gtype:["Solo","Multijoueur en ligne","Coopératif","Les deux"],
+    err_voice:"Votre navigateur ne supporte pas la reconnaissance vocale",
+  },
+  it:{
+    badge:"✨ Alimentato dall'IA",title:'Descrivi il tuo <span class="grad">umore</span><br>e scopri cosa fa per te',
+    hero_sub:"Scegli le categorie, imposta le tue preferenze con precisione, descrivi il tuo umore — l'IA troverà il contenuto perfetto per te.",
+    tab0:"Categorie",tab1:"Filtri",tab2:"Umore",
+    pt0:"Cosa stai cercando?",ps0:"Scegli una o più categorie in cui cercare",
+    pt1:"Filtri Preferenze",ps1:"Personalizza le tue opzioni per ogni categoria selezionata",
+    pt2:"Descrivi Il Tuo Umore",ps2:"Più precisa è la descrizione, migliori saranno i consigli",
+    cat_movie:"Film",cat_series:"Serie",cat_youtube:"YouTube",cat_book:"Libri",cat_game:"Giochi",
+    catd_movie:"Film cinematografici",catd_series:"Serie e programmi TV",catd_youtube:"Video e canali",catd_book:"Romanzi e riferimenti",catd_game:"PS / Xbox / Steam",
+    prev:"Precedente",next:"Avanti →",search:"✨ Cerca Ora",
+    voice_on:"In ascolto...",err_cat:"Seleziona almeno una categoria",err_mood:"Scrivi una descrizione dell'umore",
+    loading_title:"L'IA sta analizzando la tua richiesta...",loading_text:"Abbinando le tue preferenze con il miglior contenuto disponibile",
+    lsteps:["🧠 Analisi filtri e preferenze","🎭 Analisi umore e sentimenti","🔍 Ricerca approfondita","🎯 Abbinamento risultati","✨ Classificazione dei migliori consigli"],
+    ai_lbl:"Analisi IA",new_search:"Nuova Ricerca",back:"←",
+    mood_presets_lbl:"Scegli un umore rapido o scrivi il tuo:",
+    mood_presets:["😌 Voglio rilassarmi","🤔 Voglio riflettere","😂 Voglio ridere","😢 Voglio qualcosa di emotivo","💪 Voglio azione","🥰 Voglio romanticismo","😱 Voglio horror","🌍 Esplorare culture","👨‍👩‍👧 Contenuto familiare","🧠 Imparare qualcosa"],
+    placeholder:"Esempio: Voglio qualcosa che mi faccia riflettere profondamente sulla vita e sul destino...",
+    type_movie:"Film",type_series:"Serie",type_youtube:"YouTube",type_book:"Libro",type_game:"Gioco",
+    grp_movie:"🎬 Film",grp_series:"📺 Serie",grp_youtube:"▶️ YouTube",grp_book:"📚 Libri",grp_game:"🎮 Giochi",
+    f_genre:"Genere",f_duration:"Durata",f_era:"Epoca",f_lang:"Lingua",f_rating:"Classificazione età",f_mood_tone:"Tono Emotivo",f_platform:"Piattaforma",f_format:"Formato",f_length:"Lunghezza libro",f_style:"Stile di scrittura",
+    mg:["Azione","Avventura","Commedia","Dramma","Horror","Fantascienza","Romantico","Thriller","Crimine","Documentario","Fantasy","Animazione","Storico","Guerra","Psicologico"],
+    sg:["Dramma","Crimine","Commedia","Fantascienza","Horror","Romantico","Thriller","Documentario","Animazione","Storico","Politico","Medico","Legale","Avventura"],
+    yc:["Scienza e Tech","Storia e Cultura","Commedia","Documentario","Educativo","Gaming","Sport","Cucina","Viaggi","Filosofia","Notizie","Musica","Arte","Fitness"],
+    bg:["Narrativa","Fantascienza","Horror","Romantico","Crimine","Filosofia","Storia","Self-Help","Scienza","Biografia","Fantasy","Classico","Narrativa letteraria"],
+    gg:["RPG","Azione","Avventura","Sport","Strategia","Horror","FPS","Corse","Simulazione","MMORPG","Puzzle","Piattaforme","Picchiaduro","Survival Horror"],
+    dm:["Meno di 1.5h","1.5–2h","2–2.5h","Più di 2.5h","Qualsiasi durata"],
+    ds:["10 ep o meno","20–30 ep","30–60 ep","60+ ep","Qualsiasi numero"],
+    dy:["Meno di 10 min","10–30 min","30–60 min","Più di 1 ora","Qualsiasi durata"],
+    era:["Prima del 2000","2000–2010","2010–2020","Dal 2020","Non importa"],
+    lang:["Arabo","Inglese","Coreano","Giapponese","Spagnolo","Francese","Non importa"],
+    rat:["Per tutti","PG-13","16+","18+","Non importa"],
+    tone:["Allegro e divertente","Emotivo e toccante","Emozionante e veloce","Calmo e riflessivo","Oscuro e serio","Divertente e leggero","Ispirazionale"],
+    plat_stream:["Netflix","Disney+","Amazon Prime","Apple TV+","HBO Max","Qualsiasi"],
+    plat_game:["PlayStation 5","PlayStation 4","Xbox Series X/S","Xbox One","PC / Steam","Nintendo Switch","Qualsiasi"],
+    blen:["Breve (<200 pag)","Medio (200–400)","Lungo (400–600)","Epico (600+)","Non importa"],
+    bstyle:["Facile e veloce","Letterario e poetico","Analitico","Dialogico","Non importa"],
+    gtype:["Giocatore singolo","Multiplayer online","Co-op","Entrambi"],
+    err_voice:"Il tuo browser non supporta il riconoscimento vocale",
+  }
+};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentLang = 'ar';
+let currentStep = 0;
+const selectedCats = new Set();
+const filterState = {}; // { movie: { genres:[], duration:'', era:'', lang:'', rating:'', tone:'', platform:'' }, ... }
+let isRecording = false, recObj = null;
+
+// ═══════════════════════════════════════════════════
+// LANG
+// ═══════════════════════════════════════════════════
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  document.body.className = `lang-${lang}`;
+  const T = S[lang];
+  const nameMap = {ar:'العربية',en:'English',es:'Español',fr:'Français',it:'Italiano'};
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === nameMap[lang]));
+  document.getElementById('heroBadge').textContent = T.badge;
+  document.getElementById('heroTitle').innerHTML = T.title;
+  document.getElementById('heroSub').textContent = T.hero_sub;
+  document.getElementById('tl0').textContent = T.tab0;
+  document.getElementById('tl1').textContent = T.tab1;
+  document.getElementById('tl2').textContent = T.tab2;
+  document.getElementById('pt0').textContent = T.pt0;
+  document.getElementById('ps0').textContent = T.ps0;
+  document.getElementById('pt1').textContent = T.pt1;
+  document.getElementById('ps1').textContent = T.ps1;
+  document.getElementById('pt2').textContent = T.pt2;
+  document.getElementById('ps2').textContent = T.ps2;
+  document.getElementById('prevText').textContent = T.prev;
+  document.getElementById('loadingTitle').textContent = T.loading_title;
+  document.getElementById('loadingText').textContent = T.loading_text;
+  document.getElementById('aiLblText').textContent = T.ai_lbl;
+  document.getElementById('newSearchText').textContent = T.new_search;
+  document.getElementById('backArrow').textContent = T.back;
+  document.getElementById('voiceListeningText').textContent = T.voice_on;
+  document.getElementById('moodPresetsLabel').textContent = T.mood_presets_lbl;
+  document.getElementById('userInput').placeholder = T.placeholder;
+  // cat cards
+  document.querySelectorAll('.cat-name').forEach(el => { const k = el.dataset.ck; if(T[k]) el.textContent = T[k]; });
+  document.querySelectorAll('.cat-desc').forEach(el => { const k = el.dataset.ck; if(T[k]) el.textContent = T[k]; });
+  // Rebuild dynamic parts
+  buildMoodPresets();
+  if (currentStep === 1) buildFilters();
+  updateNavBtn();
+}
+
+// ═══════════════════════════════════════════════════
+// CATEGORIES
+// ═══════════════════════════════════════════════════
+function toggleCatCard(el) {
+  const cat = el.dataset.cat;
+  if (selectedCats.has(cat)) {
+    selectedCats.delete(cat);
+    el.classList.remove('active');
+    delete filterState[cat];
+  } else {
+    selectedCats.add(cat);
+    el.classList.add('active');
+    if (!filterState[cat]) filterState[cat] = { genres:[], duration:'', era:'', lang_pref:'', rating:'', tone:'', platform:'', book_len:'', book_style:'', game_type:'' };
+  }
+  updateSummary();
+}
+
+// ═══════════════════════════════════════════════════
+// FILTERS BUILDER
+// ═══════════════════════════════════════════════════
+function buildFilters() {
+  const T = S[currentLang];
+  const area = document.getElementById('filtersArea');
+  area.innerHTML = '';
+  if (!selectedCats.size) return;
+
+  selectedCats.forEach(cat => {
+    const fs = filterState[cat] || {};
+    const div = document.createElement('div');
+    div.className = 'filter-group';
+
+    const catIcons = {movie:'🎬',series:'📺',youtube:'▶️',book:'📚',game:'🎮'};
+    const badgeCls = `fg-badge-${cat}`;
+    div.innerHTML = `<div class="fg-header">
+      <span class="fg-icon">${catIcons[cat]}</span>
+      <span class="fg-title">${T['cat_'+cat]}</span>
+      <span class="fg-cat-badge ${badgeCls}">${T['cat_'+cat]}</span>
+    </div><div class="fg-body" id="fgbody-${cat}"></div>`;
+    area.appendChild(div);
+
+    const body = div.querySelector(`#fgbody-${cat}`);
+
+    // GENRE
+    const genreKey = {movie:'mg',series:'sg',youtube:'yc',book:'bg',game:'gg'}[cat];
+    const genres = T[genreKey] || [];
+    body.appendChild(buildChipSection(T.f_genre, genres, fs.genres, (v,active) => {
+      if (active) filterState[cat].genres.push(v);
+      else filterState[cat].genres = filterState[cat].genres.filter(x=>x!==v);
+      updateSummary();
+    }, 'multi', cat));
+
+    // DURATION
+    const durKey = {movie:'dm',series:'ds',youtube:'dy'}[cat];
+    if (durKey) {
+      body.appendChild(buildChipSection(T.f_duration, T[durKey], [fs.duration], (v) => {
+        filterState[cat].duration = v; updateSummary();
+      }, 'single', cat));
+    }
+
+    // ERA (not youtube)
+    if (cat !== 'youtube') {
+      body.appendChild(buildChipSection(T.f_era, T.era, [fs.era], (v) => {
+        filterState[cat].era = v; updateSummary();
+      }, 'single', cat));
+    }
+
+    // LANGUAGE
+    body.appendChild(buildChipSection(T.f_lang, T.lang, [fs.lang_pref], (v) => {
+      filterState[cat].lang_pref = v; updateSummary();
+    }, 'single', cat));
+
+    // RATING (not youtube, book)
+    if (cat !== 'youtube' && cat !== 'book') {
+      body.appendChild(buildChipSection(T.f_rating, T.rat, [fs.rating], (v) => {
+        filterState[cat].rating = v; updateSummary();
+      }, 'single', cat));
+    }
+
+    // EMOTIONAL TONE
+    body.appendChild(buildChipSection(T.f_mood_tone, T.tone, [fs.tone], (v) => {
+      filterState[cat].tone = v; updateSummary();
+    }, 'single', cat));
+
+    // PLATFORM
+    if (cat === 'movie' || cat === 'series') {
+      body.appendChild(buildChipSection(T.f_platform, T.plat_stream, [fs.platform], (v) => {
+        filterState[cat].platform = v; updateSummary();
+      }, 'single', cat));
+    }
+    if (cat === 'game') {
+      body.appendChild(buildChipSection(T.f_platform, T.plat_game, [fs.platform], (v) => {
+        filterState[cat].platform = v; updateSummary();
+      }, 'single', cat));
+      body.appendChild(buildChipSection(T.gtype || 'Game Type', T.gtype, [fs.game_type], (v) => {
+        filterState[cat].game_type = v; updateSummary();
+      }, 'single', cat));
+    }
+
+    // BOOK SPECIFIC
+    if (cat === 'book') {
+      body.appendChild(buildChipSection(T.f_length, T.blen, [fs.book_len], (v) => {
+        filterState[cat].book_len = v; updateSummary();
+      }, 'single', cat));
+      body.appendChild(buildChipSection(T.f_style, T.bstyle, [fs.book_style], (v) => {
+        filterState[cat].book_style = v; updateSummary();
+      }, 'single', cat));
+    }
+  });
+}
+
+function buildChipSection(label, options, selectedVals, onToggle, mode, cat) {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'margin-bottom:14px;';
+  wrap.innerHTML = `<div style="font-size:0.75rem;color:var(--muted2);font-weight:600;margin-bottom:8px;">${label}</div>`;
+  const chips = document.createElement('div');
+  chips.className = 'chips';
+  (options||[]).forEach(opt => {
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (selectedVals.includes(opt) ? ' active' : '');
+    chip.textContent = opt;
+    chip.onclick = () => {
+      if (mode === 'single') {
+        chips.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        onToggle(opt, true);
+      } else {
+        chip.classList.toggle('active');
+        onToggle(opt, chip.classList.contains('active'));
+      }
+    };
+    chips.appendChild(chip);
+  });
+  wrap.appendChild(chips);
+  return wrap;
+}
+
+// ═══════════════════════════════════════════════════
+// MOOD PRESETS
+// ═══════════════════════════════════════════════════
+function buildMoodPresets() {
+  const T = S[currentLang];
+  const container = document.getElementById('moodPresets');
+  container.innerHTML = '';
+  (T.mood_presets||[]).forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'mood-preset';
+    btn.textContent = p;
+    btn.onclick = () => {
+      document.querySelectorAll('.mood-preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const clean = p.replace(/^[^\s]+\s/,''); // remove emoji
+      const ta = document.getElementById('userInput');
+      if (!ta.value.trim()) { ta.value = clean; document.getElementById('charCount').textContent = clean.length; }
+    };
+    container.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// SUMMARY BAR
+// ═══════════════════════════════════════════════════
+function updateSummary() {
+  const T = S[currentLang];
+  const bar = document.getElementById('summaryBar');
+  const tags = [];
+  selectedCats.forEach(cat => {
+    tags.push(`<span class="summary-tag">${['🎬','📺','▶️','📚','🎮'][['movie','series','youtube','book','game'].indexOf(cat)]} ${T['cat_'+cat]}</span>`);
+    const fs = filterState[cat]||{};
+    if (fs.genres && fs.genres.length) tags.push(`<span class="summary-tag">${fs.genres.slice(0,2).join(', ')}</span>`);
+    if (fs.tone) tags.push(`<span class="summary-tag">${fs.tone}</span>`);
+    if (fs.platform) tags.push(`<span class="summary-tag">${fs.platform}</span>`);
+  });
+  if (tags.length) { bar.style.display='flex'; bar.innerHTML = tags.join(''); }
+  else bar.style.display='none';
+}
+
+// ═══════════════════════════════════════════════════
+// STEPS
+// ═══════════════════════════════════════════════════
+function goToStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i===n));
+  document.querySelectorAll('.step-tab').forEach((t,i) => { t.classList.toggle('active',i===n); if(i<n) t.classList.add('done'); });
+  document.getElementById('prevBtn').style.visibility = n === 0 ? 'hidden' : 'visible';
+  const T = S[currentLang];
+  const isLast = n === 2;
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.className = 'nav-btn ' + (isLast ? 'nav-submit' : 'nav-next');
+  document.getElementById('nextText').textContent = isLast ? T.search : T.next;
+  // show voice btn only on step 2
+  document.getElementById('voiceBtn').style.display = n === 2 ? 'flex' : 'none';
+  updateSummary();
+  if (n === 1) buildFilters();
+  if (n === 2) buildMoodPresets();
+}
+
+function nextStep() {
+  const T = S[currentLang];
+  if (currentStep === 0) {
+    if (!selectedCats.size) { alert(T.err_cat); return; }
+    goToStep(1);
+  } else if (currentStep === 1) {
+    goToStep(2);
+  } else {
+    const mood = document.getElementById('userInput').value.trim();
+    if (!mood) { alert(T.err_mood); return; }
+    analyze();
+  }
+}
+function prevStep() { if (currentStep > 0) goToStep(currentStep - 1); }
+function updateNavBtn() { goToStep(currentStep); }
+
+document.getElementById('userInput').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length;
+});
+
+// ═══════════════════════════════════════════════════
+// VOICE
+// ═══════════════════════════════════════════════════
+function toggleVoice() {
+  const T = S[currentLang];
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { alert(T.err_voice); return; }
+  if (isRecording) { recObj && recObj.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recObj = new SR();
+  recObj.lang = {ar:'ar-SA',en:'en-US',es:'es-ES',fr:'fr-FR',it:'it-IT'}[currentLang]||'en-US';
+  recObj.continuous=false; recObj.interimResults=false;
+  recObj.onstart=()=>{ isRecording=true; document.getElementById('voiceBtn').classList.add('recording'); document.getElementById('voiceIndicator').classList.add('show'); };
+  recObj.onresult=e=>{ const t=e.results[0][0].transcript; document.getElementById('userInput').value=t; document.getElementById('charCount').textContent=t.length; };
+  recObj.onend=recObj.onerror=()=>{ isRecording=false; document.getElementById('voiceBtn').classList.remove('recording'); document.getElementById('voiceIndicator').classList.remove('show'); };
+  recObj.start();
+}
+
+// ═══════════════════════════════════════════════════
+// ANALYZE
+// ═══════════════════════════════════════════════════
+async function analyze() {
+  const T = S[currentLang];
+  const mood = document.getElementById('userInput').value.trim();
+  document.getElementById('heroSection').style.display='none';
+  document.getElementById('wizardEl').style.display='none';
+  document.getElementById('resultsSection').classList.remove('show');
+  document.getElementById('loadingEl').classList.add('show');
+  animateSteps(T.lsteps);
+
+  const catsArr = Array.from(selectedCats);
+  const total = Math.min(catsArr.length * 3, 9);
+  const perCat = Math.floor(total / catsArr.length);
+  const rem = total - perCat * catsArr.length;
+  const alloc = {};
+  catsArr.forEach((c,i) => alloc[c] = perCat + (i < rem ? 1 : 0));
+
+  // Build filter summary string per category
+  const filterSummaries = catsArr.map(cat => {
+    const fs = filterState[cat] || {};
+    const parts = [];
+    if (fs.genres && fs.genres.length) parts.push(`genres: ${fs.genres.join(', ')}`);
+    if (fs.duration) parts.push(`duration: ${fs.duration}`);
+    if (fs.era) parts.push(`era: ${fs.era}`);
+    if (fs.lang_pref) parts.push(`language: ${fs.lang_pref}`);
+    if (fs.rating) parts.push(`rating: ${fs.rating}`);
+    if (fs.tone) parts.push(`emotional tone: ${fs.tone}`);
+    if (fs.platform) parts.push(`platform: ${fs.platform}`);
+    if (fs.book_len) parts.push(`book length: ${fs.book_len}`);
+    if (fs.book_style) parts.push(`writing style: ${fs.book_style}`);
+    if (fs.game_type) parts.push(`game type: ${fs.game_type}`);
+    return `  • ${cat.toUpperCase()} (${alloc[cat]} items): ${parts.length ? parts.join(' | ') : 'no specific filters'}`;
+  }).join('\n');
+
+  const catDefs = {
+    movie:"CINEMA FILMS only — theatrical feature films. NEVER include TV series, YouTube videos, books, or games.",
+    series:"TV SERIES / SHOWS only — episodic television content. NEVER include movies, YouTube, books, or games.",
+    youtube:"YOUTUBE VIDEOS or YOUTUBE CHANNELS only — real existing YouTube content. NEVER include movies, TV series, books, or games.",
+    book:"BOOKS only — novels, non-fiction, graphic novels. NEVER include movies, TV shows, YouTube, or games.",
+    game:"VIDEO GAMES only — PlayStation, Xbox, Steam, Nintendo. NEVER include movies, TV series, YouTube, or books.",
+  };
+
+  const catInstructions = catsArr.map(c =>
+    `- "${c}" → ${alloc[c]} item(s). Definition: ${catDefs[c]}`
+  ).join('\n');
+
+  const systemPrompt = `You are Mood Match, an expert content curator AI. You excel at understanding nuanced human emotions and matching them to highly specific, accurate content.
+
+ABSOLUTE RULES:
+1. Detect the user's language from their mood description. Respond ENTIRELY in that language.
+2. Every item MUST strictly match its category definition. Zero exceptions.
+3. All filter preferences MUST be respected. If user prefers horror genre, ONLY recommend horror. If user wants Netflix, prioritize Netflix content.
+4. Recommendations must be DIVERSE — different authors/directors/franchises.
+5. Recommendations must GENUINELY match the mood described — analyze emotional subtext deeply.
+6. For YouTube: recommend real, popular, currently active channels or widely-known specific videos.
+7. If filters conflict with mood, prioritize mood but note the compromise in why_match.
+
+Category allocations:
+${catInstructions}
+
+User's filter preferences per category:
+${filterSummaries}
+
+Total items: ${total}
+
+Respond ONLY in this exact JSON format (no markdown):
+{
+  "analysis": "3-4 sentences: emotional state detected, themes identified, how filters shaped recommendations. Warm and insightful. In user's language.",
+  "recommendations": [
+    {
+      "title": "exact title",
+      "type": "movie|series|youtube|book|game",
+      "year": "year or empty",
+      "genre": "genre(s)",
+      "platform": "specific platform(s)",
+      "why_match": "1-2 sentences: why this SPECIFICALLY matches this user's mood AND filters. Mention specific emotional resonance. In user's language.",
+      "emoji": "one fitting emoji"
+    }
+  ]
+}`;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model:"claude-sonnet-4-20250514", max_tokens:2500,
+        system: systemPrompt,
+        messages:[{role:"user", content:`Mood description: "${mood}"`}]
+      })
+    });
+    const data = await res.json();
+    const raw = (data.content?.[0]?.text||'').replace(/```json|```/g,'').trim();
+    let parsed = JSON.parse(raw);
+    // Enforce category integrity
+    parsed.recommendations = parsed.recommendations.filter(r => catsArr.includes(r.type));
+    showResults(parsed, catsArr);
+  } catch(e) {
+    console.error(e);
+    showResults(buildFallback(currentLang, catsArr, alloc), catsArr);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// LOADING ANIMATION
+// ═══════════════════════════════════════════════════
+function animateSteps(steps) {
+  const c = document.getElementById('lsteps'); c.innerHTML='';
+  steps.forEach((text,i) => {
+    const el=document.createElement('div'); el.className='lstep';
+    el.style.animationDelay=`${i*0.85}s`;
+    el.innerHTML=`<span class="si">⏳</span><span>${text}</span>`;
+    c.appendChild(el);
+    setTimeout(()=>{ el.querySelector('.si').textContent='✅'; el.classList.add('done'); },(i*850)+750);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER RESULTS
+// ═══════════════════════════════════════════════════
+function showResults(data, catsArr) {
+  document.getElementById('loadingEl').classList.remove('show');
+  document.getElementById('aiResponse').textContent = data.analysis||'';
+  const T = S[currentLang];
+  const container = document.getElementById('groupsContainer');
+  container.innerHTML='';
+
+  catsArr.forEach(cat => {
+    const items = (data.recommendations||[]).filter(r=>r.type===cat);
+    if (!items.length) return;
+    const grp=document.createElement('div'); grp.className='rgroup';
+    grp.innerHTML=`<div class="rgroup-hdr">
+      <span class="rgroup-title">${T['grp_'+cat]||cat}</span>
+      <span class="rgroup-count">${items.length}</span>
+    </div>`;
+    const grid=document.createElement('div'); grid.className='rgrid';
+    items.forEach((item,i)=>{
+      const card=document.createElement('div'); card.className='rcard';
+      card.style.animationDelay=`${i*0.09}s`;
+      const q=encodeURIComponent(item.title+(item.type==='youtube'?' youtube':item.type==='game'?' game':''));
+      card.onclick=()=>window.open(`https://www.google.com/search?q=${q}`,'_blank');
+      card.innerHTML=`
+        <div class="rthumb">
+          <div class="rthumb-bg">${item.emoji||'🎬'}</div>
+          <span class="rthumb-icon">${item.emoji||'🎬'}</span>
+        </div>
+        <div class="rbody">
+          <span class="rbadge rb-${item.type}">${T['type_'+item.type]||item.type}</span>
+          <div class="rtitle">${item.title}</div>
+          <div class="rmeta">
+            ${item.year?item.year+(item.genre?' · ':''):''}${item.genre||''}
+            ${item.platform?`<div class="rplatform">📍 ${item.platform}</div>`:''}
+          </div>
+          <span class="rmatch">${item.why_match||''}</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+    grp.appendChild(grid); container.appendChild(grp);
+  });
+  document.getElementById('resultsSection').classList.add('show');
+}
+
+// ═══════════════════════════════════════════════════
+// FALLBACK
+// ═══════════════════════════════════════════════════
+function buildFallback(lang, cats, alloc) {
+  const a={ar:"بناءً على تفضيلاتك وما وصفته، هذه التوصيات ستناسب مزاجك تماماً.",en:"Based on your preferences and description, these recommendations perfectly match your mood.",es:"Basándome en tus preferencias, estas recomendaciones coinciden perfectamente con tu estado de ánimo.",fr:"D'après vos préférences, ces recommandations correspondent parfaitement à votre humeur.",it:"In base alle tue preferenze, questi consigli corrispondono perfettamente al tuo umore."};
+  const pool={
+    movie:[{title:"Inception",type:"movie",year:"2010",genre:"Sci-Fi / Thriller",platform:"Netflix",emoji:"🌀"},{title:"The Shawshank Redemption",type:"movie",year:"1994",genre:"Drama",platform:"Amazon Prime",emoji:"🏛️"},{title:"Parasite",type:"movie",year:"2019",genre:"Thriller",platform:"Amazon Prime",emoji:"🏠"}],
+    series:[{title:"Dark",type:"series",year:"2017",genre:"Sci-Fi / Mystery",platform:"Netflix",emoji:"🌑"},{title:"Severance",type:"series",year:"2022",genre:"Thriller",platform:"Apple TV+",emoji:"✂️"},{title:"Breaking Bad",type:"series",year:"2008",genre:"Crime",platform:"Netflix",emoji:"⚗️"}],
+    youtube:[{title:"Kurzgesagt – In a Nutshell",type:"youtube",year:"",genre:"Science",platform:"YouTube",emoji:"🔬"},{title:"Veritasium",type:"youtube",year:"",genre:"Science",platform:"YouTube",emoji:"⚛️"},{title:"TED Talks",type:"youtube",year:"",genre:"Educational",platform:"YouTube",emoji:"🎤"}],
+    book:[{title:"Sapiens",type:"book",year:"2011",genre:"Non-Fiction",platform:"",emoji:"📖"},{title:"1984",type:"book",year:"1949",genre:"Dystopia",platform:"",emoji:"📚"},{title:"Dune",type:"book",year:"1965",genre:"Sci-Fi",platform:"",emoji:"🌅"}],
+    game:[{title:"The Witcher 3",type:"game",year:"2015",genre:"RPG",platform:"PS5 / Xbox / Steam",emoji:"⚔️"},{title:"Red Dead Redemption 2",type:"game",year:"2018",genre:"Adventure",platform:"PS5 / Xbox",emoji:"🤠"},{title:"Elden Ring",type:"game",year:"2022",genre:"Action RPG",platform:"PS5 / Xbox / Steam",emoji:"💀"}],
+  };
+  const why={ar:"يتوافق مع مزاجك ومع فلاتر التفضيلات التي اخترتها.",en:"Matches your mood and selected preference filters.",es:"Coincide con tu estado de ánimo y filtros seleccionados.",fr:"Correspond à votre humeur et vos filtres sélectionnés.",it:"Corrisponde al tuo umore e ai filtri selezionati."};
+  const recs=[];
+  cats.forEach(cat => { (pool[cat]||[]).slice(0,alloc[cat]||1).forEach(item => recs.push({...item,why_match:why[lang]||why.en})); });
+  return {analysis:a[lang]||a.en,recommendations:recs};
+}
+
+// ═══════════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════════
+function resetAll() {
+  selectedCats.clear();
+  Object.keys(filterState).forEach(k=>delete filterState[k]);
+  document.querySelectorAll('.cat-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('userInput').value='';
+  document.getElementById('charCount').textContent='0';
+  document.getElementById('resultsSection').classList.remove('show');
+  document.getElementById('heroSection').style.display='';
+  document.getElementById('wizardEl').style.display='';
+  goToStep(0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// init
+buildMoodPresets();
+goToStep(0);
+</script>
+</body>
+</html>
